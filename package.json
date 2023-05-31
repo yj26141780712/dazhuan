@@ -4,9 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "concurrently \"tsc --watch\" \"live-server\""
+    "dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.js",
+    "test": "webpack"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "html-webpack-plugin": "^5.5.1",
+    "ts-loader": "^9.4.3",
+    "webpack": "^5.84.1",
+    "webpack-cli": "^5.1.1",
+    "webpack-dev-server": "^4.15.0"
+  }
 }
