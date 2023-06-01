@@ -1,8 +1,9 @@
 // 球拍
 import SAT from 'sat';
+import Game from './Game';
 
 export class Racket {
-    
+
     height = 10;
     width = 40;
     x = 0;
@@ -10,7 +11,7 @@ export class Racket {
     color = '#000';
     ctx: CanvasRenderingContext2D;
     rect = new SAT.Box(new SAT.Vector(), this.width, this.height).toPolygon();
-    speed = 5;
+    speed = 4;
     direction = 0;
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
@@ -30,9 +31,15 @@ export class Racket {
     }
 
     update() {
-        this.x = this.x + this.speed*this.direction;
+        this.x = this.x + this.speed * this.direction;
+        if (this.x > Game.width - Game.borderWidth - this.width) {
+            this.x = Game.width - Game.borderWidth - this.width;
+        }
+        if (this.x < Game.borderWidth) {
+            this.x = Game.borderWidth;
+        }
         this.rect.pos.x = this.x;
-        console.log(this.x,this.direction)
+        console.log(this.x, this.direction)
         this.draw();
     }
 }
