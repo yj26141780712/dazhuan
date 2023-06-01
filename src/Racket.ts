@@ -10,6 +10,8 @@ export class Racket {
     color = '#000';
     ctx: CanvasRenderingContext2D;
     rect = new SAT.Box(new SAT.Vector(), this.width, this.height).toPolygon();
+    speed = 5;
+    direction = 0;
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
     }
@@ -28,6 +30,9 @@ export class Racket {
     }
 
     update() {
+        this.x = this.x + this.speed*this.direction;
+        this.rect.pos.x = this.x;
+        console.log(this.x,this.direction)
         this.draw();
     }
 }

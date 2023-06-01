@@ -25,7 +25,7 @@ export class Ball {
         this.update();
         this.draw();
         this.vx = 5;
-        this.vy = 5;
+        this.vy = -5;
     }
 
     update(){

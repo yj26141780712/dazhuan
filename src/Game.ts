@@ -13,6 +13,8 @@ export default class Game {
     private static brick: Brick;
     private static racket: Racket;
     private static starting = false;
+    private static leftDown = false;
+    private static rightDown = false;
     static height = 600;
     static width = 400;
     static bottomHeight = 20;
@@ -45,20 +47,49 @@ export default class Game {
         //砖块
         this.brick = new Brick(this.ctx);
         this.brick.init();
-        document.addEventListener('keydown', this.keyEvent);
+        console.log('123')
+        document.addEventListener('keydown', this.keyDownEvent);
+        document.addEventListener('keyup', this.keyUpEvent);
+        // document.addEventListener('keydown', this.keyEvent);
         window.addEventListener('resize', this.resize);
         const startBtn = document.getElementById('start');
         startBtn?.addEventListener('click', this.start);
         this.drawBorder();
     }
 
-    public static keyEvent = (ev: KeyboardEvent) => {
+    public static keyDownEvent = (ev: KeyboardEvent) => {
+        if (ev.key === 'ArrowLeft') {
+            this.racket.direction = -1;
+            this.leftDown = true;
+        } else if (ev.key === 'ArrowRight') {
+            this.racket.direction = 1;
+            this.rightDown = true;
+        } else {
+            console.log('无效键')
+        }
+        // if(ev.key)
+    }
 
+    public static keyUpEvent = (ev: KeyboardEvent) => {
+        if (ev.key === 'ArrowLeft') {
+            this.leftDown = false;
+            this.racket.direction = this.rightDown ? 1 : 0;
+        } else if (ev.key === 'ArrowRight') {
+            this.rightDown = false;
+            this.racket.direction = this.leftDown ? -1 : 0;
+        } else {
+            console.log('无效键')
+        }
     }
 
     public static start = () => {
         //this.ball.draw()
         this.starting = true;
+        this.racket.init({ x: this.width / 2 - this.racket.width / 2, y: this.height - this.bottomHeight - this.racket.height });
+        //球
+        this.ball.init({ x: this.width / 2, y: this.height - this.bottomHeight - this.racket.height - this.ball.radius });
+        //砖块
+        this.brick.init();
     }
 
     public static end() {
@@ -84,10 +115,10 @@ export default class Game {
             this.ctx.clearRect(0, 0, 400, 800);
             //更新边框
             this.drawBorder();
+             //更新砖块
+            this.brick.update();
             //更新球位置
             this.ball.update();
-            //更新砖块
-            this.brick.update();
             //更新球拍
             this.racket.update();
             //检测砖块碰撞
@@ -96,6 +127,7 @@ export default class Game {
             this.checkIsWin();
             this.checkRacketColliding();
             //检测球拍碰撞
+            this.racket.update();
         }
     }
 
@@ -138,8 +170,8 @@ export default class Game {
             if (isColliding) {
                 this.ball.vy = -this.ball.vy;
             } else {
-               this.starting = false; 
-               console.log('game over');
+                this.starting = false;
+                console.log('game over');
             }
         }
     }

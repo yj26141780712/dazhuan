@@ -31,6 +31,7 @@ export class Brick {
     }
 
     init() {
+        this.sums = [];
         for (let i = 0; i < this.row; i++) {
             for (let j = 0; j < this.rowNum; j++) {
                 this.sums.push({
