@@ -3,7 +3,7 @@ import { Brick } from "./Brick";
 import { Racket } from "./Racket";
 import { getScale } from "./util/auto";
 import SAT from 'sat';
-import { getEventPosition, isTouchEvent } from "./util/dom";
+import { getEventPosition, isPC, isTouchEvent } from "./util/dom";
 import { DragService } from "./service/dragService";
 
 export default class Game {
@@ -58,17 +58,23 @@ export default class Game {
         window.addEventListener('keyup', this.keyUpEvent);
         window.addEventListener('resize', this.resize);
         const startBtn = document.getElementById('start');
-        startBtn?.addEventListener('touchstart', this.start);
-        startBtn?.addEventListener('mousedown', this.start);
-
+        const ispc = isPC();
+        if(ispc) {
+            startBtn?.addEventListener('mousedown', this.start);
+        } else {
+            startBtn?.addEventListener('touchstart', this.start);
+        }
         this.touchArea = document.getElementById('touch') as HTMLElement;
-        this.touchArea.addEventListener('touchstart', this.mousedown);
-        this.touchArea.addEventListener('mousedown', this.mousedown);
-
+        if(ispc) {
+            this.touchArea.addEventListener('mousedown', this.mousedown);
+        } else {
+            this.touchArea.addEventListener('touchstart', this.mousedown);
+        }
         this.drawBorder();
     }
 
     public static mousedown = (ev: MouseEvent | TouchEvent) => {
+        console.log(new Date());
         const p = getEventPosition(ev);
         this.startPoint.x = p.pageX;
         this.countDirection(this.startPoint.x);

@@ -5,7 +5,7 @@ import Game from './Game';
 export class Racket {
 
     height = 10;
-    width = 40;
+    width = 80;
     x = 0;
     y = 0;
     color = '#000';
