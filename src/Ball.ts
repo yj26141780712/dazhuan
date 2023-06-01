@@ -1,7 +1,9 @@
 import Game from "./Game";
+import SAT from 'sat';
 
 // 球
 export class Ball {
+
     x: number = 0;
     y: number = 0;
     radius: number = 20;
@@ -9,6 +11,7 @@ export class Ball {
     color: string = 'red';
     vx = 0; // x方向速度
     vy = 0; // y方向速度
+    circle =  new SAT.Circle(new SAT.Vector(), this.radius);
     // angle = 60; // 角度
     // direction = 1; //方向
     constructor(ctx: CanvasRenderingContext2D) {
@@ -28,10 +31,15 @@ export class Ball {
     update(){
         this.x = this.x + this.vx;
         this.y = this.y + this.vy;
+        this.circle.pos.x = this.x;
+        this.circle.pos.y = this.y;
         if(this.x > (Game.width - Game.borderWidth - this.radius) || this.x < (Game.borderWidth+this.radius)) {
             this.vx =  -this.vx;
         }
-        if(this.y > (Game.height - Game.bottomHeight - Game.racketHeight - this.radius) || this.y < (Game.borderWidth + this.radius)){
+        // if(this.y > (Game.height - Game.bottomHeight - Game.this.racket.height - this.radius) || this.y < (Game.borderWidth + this.radius)){
+        //     this.vy = - this.vy;
+        // }
+        if(this.y < (Game.borderWidth + this.radius)){
             this.vy = - this.vy;
         }
         this.draw()

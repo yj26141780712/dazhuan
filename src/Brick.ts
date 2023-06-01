@@ -1,12 +1,19 @@
 //砖块
 
+import { convertToRGBA } from "./util/common";
+import { Bezier } from "bezier-js";
+import SAT from 'sat';
+
 interface RectOption {
-    x:number;
-    y:number;
-    color:string;
+    x: number;
+    y: number;
+    color: string;
+    opacity: number;
+    t:number
 }
 
 export class Brick {
+    
     ctx: CanvasRenderingContext2D;
     sums: RectOption[] = [];
     height = 15;
@@ -15,6 +22,10 @@ export class Brick {
     row = 6;
     startX = 40;
     startY = 40;
+    removeIndexs: number[] = [];
+    removeSpeed = 0.05;
+    bezier = new Bezier([0, 0, 0, 0, .58, 1,1, 1])
+    rect =  new SAT.Box(new SAT.Vector(0,0), this.width, this.height).toPolygon();
     constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
     }
@@ -25,24 +36,39 @@ export class Brick {
                 this.sums.push({
                     x: this.startX + this.width * j,
                     y: this.startY + this.height * i,
-                    color:`rgb(${Math.ceil(Math.random()*255)},${Math.ceil(Math.random()*255)},${Math.ceil(Math.random()*255)})`
+                    color: `rgb(${Math.ceil(Math.random() * 255)},${Math.ceil(Math.random() * 255)},${Math.ceil(Math.random() * 255)})`,
+                    opacity: 1,
+                    t:0
                 });
             }
         }
         this.draw();
     }
 
-    drawRect(x:RectOption) {
+    drawRect(x: RectOption) {
 
+    }
+
+    speedF() {
+    
     }
 
     draw() {
-        console.log(this.sums);
-        this.sums.forEach(rect => {
-            if (rect) {
-                this.ctx.fillStyle = rect.color;
-                this.ctx.fillRect(rect.x,rect.y,this.width,this.height);
+        this.sums.forEach((rect, index) => {
+            if (this.removeIndexs.includes(index)) {
+                rect.t = rect.t +0.02;
+                if (rect.t > 1) {
+                    return;
+                }
             }
+            const opacity = 1 - this.bezier.get(rect.t).y;
+            this.ctx.fillStyle = convertToRGBA(rect.color, opacity);
+            this.ctx.fillRect(rect.x, rect.y, this.width, this.height);
         })
     }
+
+    update(){
+        this.draw();
+    }
+    
 }
