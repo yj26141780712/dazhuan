@@ -32,6 +32,7 @@ export class Brick {
 
     init() {
         this.sums = [];
+        this.removeIndexs = [];
         for (let i = 0; i < this.row; i++) {
             for (let j = 0; j < this.rowNum; j++) {
                 this.sums.push({
