@@ -1,55 +1,58 @@
 import Game from "./game";
-import SAT from 'sat';
+// import SAT from 'sat';
+import p2 from 'p2';
+
+interface BallOption {
+    ctx: CanvasRenderingContext2D;
+    world: p2.World;
+    startPos?: [number, number];
+    radius?: number;
+    mass?: number;
+}
+
+type CircleWithRadius = p2.Circle & { radius: number };
 
 // 球
 export class Ball {
 
-    x: number = 0;
-    y: number = 0;
-    radius: number = 20;
     ctx: CanvasRenderingContext2D;
     color: string = 'red';
-    vx = 0; // x方向速度
-    vy = 0; // y方向速度
-    circle =  new SAT.Circle(new SAT.Vector(), this.radius);
-    // angle = 60; // 角度
-    // direction = 1; //方向
-    constructor(ctx: CanvasRenderingContext2D) {
-        this.ctx = ctx;
+    circleBody: p2.Body;
+    circleShape: CircleWithRadius; // 创建圆形形状
+    world: p2.World;
+    constructor(option: BallOption) {
+        this.ctx = option.ctx;
+        this.world = option.world;
+        this.circleBody = new p2.Body({
+            mass:1,
+            position: option.startPos ? [...option.startPos] : [0, 0],
+        });
+        this.circleBody.type = p2.Body.STATIC;
+        this.circleBody.velocity = [200,-200];
+        this.circleShape = new p2.Circle({ radius: option.radius || 20 })
+        this.circleBody.addShape(this.circleShape);
+        this.world.addBody(this.circleBody)
+        this.init();
     }
 
-    init({ x = 0, y = 0 }) {
-        // 初始化位置
-        this.x = x;
-        this.y = y;
-        this.update();
-        this.draw();
-        this.vx = 5;
-        this.vy = -5;
+    init() {
+
     }
 
-    update(){
-        this.x = this.x + this.vx;
-        this.y = this.y + this.vy;
-        this.circle.pos.x = this.x;
-        this.circle.pos.y = this.y;
-        if(this.x > (Game.width - Game.borderWidth - this.radius) || this.x < (Game.borderWidth+this.radius)) {
-            this.vx =  -this.vx;
-        }
-        // if(this.y > (Game.height - Game.bottomHeight - Game.this.racket.height - this.radius) || this.y < (Game.borderWidth + this.radius)){
-        //     this.vy = - this.vy;
-        // }
-        if(this.y < (Game.borderWidth + this.radius)){
-            this.vy = - this.vy;
-        }
+    update() {
         this.draw()
     }
 
     draw() {
-        this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-        this.ctx.closePath();
-        this.ctx.fillStyle = this.color;
-        this.ctx.fill();
+        if (this.circleBody) {
+            this.ctx.beginPath();
+            console.log(this.circleBody.position)
+            this.ctx.arc(this.circleBody.position[0], this.circleBody.position[1],
+                this.circleShape?.radius as number, 0, Math.PI * 2, true);
+            this.ctx.closePath();
+            this.ctx.fillStyle = this.color;
+            this.ctx.fill();
+        }
+
     }
 }

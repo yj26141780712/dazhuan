@@ -2,9 +2,11 @@ import { Ball } from "./ball";
 import { Brick } from "./brick";
 import { Racket } from "./racket";
 import { getScale } from "../util/auto";
-import SAT from 'sat';
+// import SAT from 'sat';
 import { getEventPosition, isPC, isTouchEvent } from "../util/dom";
 import { DragService } from "../service/dragService";
+import p2 from 'p2';
+import { Border } from "./border";
 
 export default class Game {
 
@@ -15,6 +17,7 @@ export default class Game {
     private static ball: Ball;
     private static brick: Brick;
     private static racket: Racket;
+    private static border: Border;
     private static starting = false;
     private static leftDown = false;
     private static rightDown = false;
@@ -26,6 +29,14 @@ export default class Game {
     static borderColor = '#000';
     static isMouseDown = false;
     static startPoint = { x: 0, y: 0 };
+    static world = new p2.World();
+    static ballRadius = 20;
+    static brickHeight = 15;
+    static brickWidth = 40;
+    static brickRow = 6;
+    static brickRowNum = 8;
+    static racketHeight = 10;
+    static racketWidth = 80;
     private constructor() {
 
     }
@@ -44,33 +55,62 @@ export default class Game {
             this.canvas.width = this.width;
         }
         this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+        //墙壁
+        this.border = new Border({
+            ctx: this.ctx,
+            world: this.world, 
+        });
         //球拍
-        this.racket = new Racket(this.ctx);
-        this.racket.init({ x: this.width / 2 - this.racket.width / 2, y: this.height - this.bottomHeight - this.racket.height });
+        this.racket = new Racket({
+            ctx: this.ctx,
+            world: this.world,
+            startPos: [
+                this.width / 2 - this.racketWidth / 2,
+                this.height - this.bottomHeight - this.racketHeight
+            ],
+            height: this.racketHeight,
+            width: this.racketWidth,
+            mass: 0
+        });
         //球
-        this.ball = new Ball(this.ctx);
-        this.ball.init({ x: this.width / 2, y: this.height - this.bottomHeight - this.racket.height - this.ball.radius });
+        this.ball = new Ball({
+            ctx: this.ctx,
+            world: this.world,
+            startPos: [
+                this.width / 2,
+                this.height - this.bottomHeight - this.racketHeight - this.ballRadius
+            ],
+            mass: 0,
+            radius: this.ballRadius
+        });
         //砖块
-        this.brick = new Brick(this.ctx);
-        this.brick.init();
-  
-        window.addEventListener('keydown', this.keyDownEvent);
-        window.addEventListener('keyup', this.keyUpEvent);
+        this.brick = new Brick({
+            ctx: this.ctx,
+            world: this.world,
+            height: this.brickHeight,
+            width: this.brickWidth,
+            row: this.brickRow,
+            rowNum: this.brickRowNum,
+            mass: 0,
+        });
+        // window.addEventListener('keydown', this.keyDownEvent);
+        // window.addEventListener('keyup', this.keyUpEvent);
         window.addEventListener('resize', this.resize);
         const startBtn = document.getElementById('start');
         const ispc = isPC();
-        if(ispc) {
+        if (ispc) {
             startBtn?.addEventListener('mousedown', this.start);
         } else {
             startBtn?.addEventListener('touchstart', this.start);
         }
-        this.touchArea = document.getElementById('touch') as HTMLElement;
-        if(ispc) {
-            this.touchArea.addEventListener('mousedown', this.mousedown);
-        } else {
-            this.touchArea.addEventListener('touchstart', this.mousedown);
-        }
-        this.drawBorder();
+        // this.touchArea = document.getElementById('touch') as HTMLElement;
+        // if (ispc) {
+        //     this.touchArea.addEventListener('mousedown', this.mousedown);
+        // } else {
+        //     this.touchArea.addEventListener('touchstart', this.mousedown);
+        // }
+        //碰撞检测
+        this.world.on("beginContact", this.beginContact)
     }
 
     public static mousedown = (ev: MouseEvent | TouchEvent) => {
@@ -122,13 +162,11 @@ export default class Game {
         }
     }
 
-    public static start = (e:MouseEvent | TouchEvent) => {
+    public static start = (e: MouseEvent | TouchEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        this.racket.init({ x: this.width / 2 - this.racket.width / 2, y: this.height - this.bottomHeight - this.racket.height });
-        //球
-        this.ball.init({ x: this.width / 2, y: this.height - this.bottomHeight - this.racket.height - this.ball.radius });
-        //砖块
+        this.racket.init();
+        this.ball.init();
         this.brick.init();
         this.starting = true;
     }
@@ -140,8 +178,8 @@ export default class Game {
     public static drawBorder() {
         this.ctx.fillStyle = this.borderColor;
         this.ctx.fillRect(0, 0, this.width, this.borderWidth);
-        this.ctx.fillRect(0, this.borderWidth, this.borderWidth, this.height - this.bottomHeight - this.racket.height - this.borderWidth);
-        this.ctx.fillRect(this.width - this.borderWidth, 20, 20, this.height - this.bottomHeight - this.racket.height - this.borderWidth);
+        this.ctx.fillRect(0, this.borderWidth, this.borderWidth, this.height - this.bottomHeight - this.racketHeight - this.borderWidth);
+        this.ctx.fillRect(this.width - this.borderWidth, this.borderWidth, this.borderWidth, this.height - this.bottomHeight - this.racketHeight - this.borderWidth);
         this.ctx.fillRect(0, this.height - 5, this.width, 5);
     }
 
@@ -155,20 +193,27 @@ export default class Game {
         if (Game.starting) {
             this.ctx.clearRect(0, 0, 400, 800);
             //更新边框
-            this.drawBorder();
+            this.border.update();
             //更新砖块
             this.brick.update();
             //更新球位置
             this.ball.update();
             //更新球拍
             this.racket.update();
-            //检测砖块碰撞
-            this.checkBrickColliding();
-            //检测是否胜利
-            this.checkIsWin();
-            this.checkRacketColliding();
-            //检测球拍碰撞
-            this.racket.update();
+            // //检测砖块碰撞
+            // this.checkBrickColliding();
+            // //检测是否胜利
+            // this.checkIsWin();
+            // //检测球拍碰撞
+            // this.checkRacketColliding();
+            // 更新物理世界
+            this.world.step(1 / 60);
+
+            // 执行其他逻辑
+
+            // 进行碰撞检测
+            // this.world.emitCollisionEvents(); // 触发碰撞事件
+
         }
     }
 
@@ -177,20 +222,6 @@ export default class Game {
         // 判断小球是否进去砖块区域
 
         // 判断小球是否与砖块进行碰撞
-        var response = new SAT.Response();
-        for (let i = 0; i < this.brick.sums.length; i++) {
-            const rect = this.brick.sums[i];
-            if (!this.brick.removeIndexs.includes(i)) {
-                this.brick.rect.pos.x = rect.x;
-                this.brick.rect.pos.y = rect.y;
-                var isColliding = SAT.testCirclePolygon(this.ball.circle, this.brick.rect, response);
-                if (isColliding) {
-                    this.brick.removeIndexs.push(i);
-                    this.ball.vy = -this.ball.vy;
-                    break;
-                }
-            }
-        }
     }
 
     public static checkOver() {
@@ -205,16 +236,14 @@ export default class Game {
 
     public static checkRacketColliding() {
         //判断小球是否进去球拍区域
-        if (this.ball.y > this.height - this.bottomHeight - this.racket.height - this.ball.radius) {
-            var response = new SAT.Response();
-            var isColliding = SAT.testCirclePolygon(this.ball.circle, this.racket.rect, response);
-            if (isColliding) {
-                this.ball.vy = -this.ball.vy;
-            } else {
-                this.starting = false;
-                console.log('game over');
-            }
-        }
+
+    }
+
+    public static beginContact = (event: any) => {
+        // console.log(event);
+        const shapeA = event.bodyA.shapes[0];
+        const shapeB = event.bodyB.shapes[0];
+        console.log(event);
     }
 
 }

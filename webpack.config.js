@@ -28,7 +28,8 @@ module.exports = {
           // 'style-loader',
           MiniCssExtractPlugin.loader,
           'css-loader',
-          'sass-loader'
+          'sass-loader',
+          'postcss-loader'
         ]
       }
     ]
@@ -53,8 +54,7 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'index.[contenthash].css',
       // chunkFilename: '[id].css'
-    }),
-    require('autoprefixer')
+    })
   ],
   devServer: {
     port: 8080, // 指定端口号

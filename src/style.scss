@@ -9,6 +9,7 @@ body {
     height: 100%;
     width: 100%;
     touch-action: none;
+    overflow: hidden;
 }
 
 .container {
@@ -34,12 +35,6 @@ body {
 }
 
 * {
-    -webkit-touch-callout: none;
-    /* 禁止长按链接与图片弹出菜单 */
-    -webkit-user-select: none;
-    /* 禁止用户选择文本 */
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
+    -webkit-touch-callout: none;
 }
