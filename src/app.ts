@@ -1,3 +1,4 @@
+import './style.scss';
 import Game from "./Game";
 // import { Ball } from "./Ball";
 // import { Brick } from "./Brick";
