@@ -1,6 +1,6 @@
 //砖块
 
-import { convertToRGBA } from "./util/common";
+import { convertToRGBA } from "../util/common";
 import { Bezier } from "bezier-js";
 import SAT from 'sat';
 

@@ -8,7 +8,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  entry: './src/app.ts',   // 打包对入口文件，期望打包对文件入口
+  entry: './src/main.ts',   // 打包对入口文件，期望打包对文件入口
   output: {
     filename: 'index.[contenthash].js',   // 输出文件名称
     // chunkFilename: '[name].chunk.js', // 固定块文件名
