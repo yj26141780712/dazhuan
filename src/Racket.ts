@@ -1,6 +1,6 @@
 // 球拍
 import SAT from 'sat';
-import Game from './Game';
+import Game from './game';
 
 export class Racket {
 

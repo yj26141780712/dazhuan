@@ -1,6 +1,6 @@
-import { Ball } from "./Ball";
-import { Brick } from "./Brick";
-import { Racket } from "./Racket";
+import { Ball } from "./ball";
+import { Brick } from "./brick";
+import { Racket } from "./racket";
 import { getScale } from "./util/auto";
 import SAT from 'sat';
 import { getEventPosition, isPC, isTouchEvent } from "./util/dom";

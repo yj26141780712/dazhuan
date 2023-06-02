@@ -1,5 +1,5 @@
 import './style.scss';
-import Game from "./Game";
+import Game from "./game";
 // import { Ball } from "./Ball";
 // import { Brick } from "./Brick";
 // import { Racket } from "./Racket";
